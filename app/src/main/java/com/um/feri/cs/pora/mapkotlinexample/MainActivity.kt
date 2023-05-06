@@ -22,6 +22,7 @@ import java.util.*
 class MainActivity : AppCompatActivity(),LocationListener {
     private val REQUEST_PERMISSIONS_REQUEST_CODE = 1
     private lateinit var map : MapView
+    private var previousMarker: Marker? = null;
     private lateinit var locationManager: LocationManager
     var startpoint : GeoPoint = GeoPoint(50.98369865472108, 7.1198313230549255)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -70,20 +71,34 @@ class MainActivity : AppCompatActivity(),LocationListener {
             )
         }
     }
+    private fun addMarker(location: GeoPoint) {
+        // Remove the previous marker if it exists
+        previousMarker?.let {
+            map.overlays.remove(it)
+        }
+
+        // Add a new marker at the given location
+        val marker = Marker(map)
+        marker.position = location
+        marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+        marker.icon = ContextCompat.getDrawable(this, R.drawable.baseline_expand_less_24)
+        map.overlays.add(marker)
+
+        // Store the new marker as the previous marker
+        previousMarker = marker
+
+        // Refresh the map to update the marker
+        map.invalidate()
+    }
     override fun onLocationChanged(location: Location) {
         val currentLocation = GeoPoint(location.latitude, location.longitude)
 
         val mapController = map.controller
         mapController.setCenter(currentLocation)
-        mapController.setZoom(15.0)
 
         //Setting User
         val userIcon = ContextCompat.getDrawable(this, R.drawable.baseline_expand_less_24)
-        val marker = Marker(map)
-        marker.position = currentLocation
-        marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-        marker.icon = userIcon
-        map.overlays.add(marker)
+        addMarker(currentLocation)
 
     }
     override fun onResume() {
