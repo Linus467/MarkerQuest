@@ -12,9 +12,9 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
     <application
         android:allowBackup="true"
-        android:icon="@drawable/dall_e_2023_05_06_21_32_47___app_icon_for_an_location_remember_app"
+        android:icon="@drawable/ic_launcher_background"
         android:label="@string/app_name"
-        android:roundIcon="@drawable/dall_e_2023_05_06_21_32_47___app_icon_for_an_location_remember_app"
+        android:roundIcon="@drawable/ic_launcher_background"
         android:supportsRtl="true"
         android:theme="@style/Theme.MapKotlinExample">
 
