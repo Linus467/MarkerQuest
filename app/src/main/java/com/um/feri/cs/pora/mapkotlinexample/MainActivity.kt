@@ -49,6 +49,7 @@ class MainActivity : AppCompatActivity(),LocationListener {
 
         val mapController = map.controller
         mapController.setZoom(15.0)
+        mapController.setCenter(startpoint)
 
         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
