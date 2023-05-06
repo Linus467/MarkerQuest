@@ -10,6 +10,7 @@ import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
 import android.preference.PreferenceManager
+import android.view.MotionEvent
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -196,7 +197,11 @@ class MainActivity : AppCompatActivity(),LocationListener {
             }
         }
         map.overlays.add(mapNorthCompassOverlay)
-        map.overlays.get(map.overlays.indexOf(mapNorthCompassOverlay)).onSingleTapConfirmed(, map)
+        map.overlays.get(map.overlays.indexOf(mapNorthCompassOverlay)).onTouchEvent(object : View.OnTouchListener{
+            override fun onTouch(p0: View?, p1: MotionEvent?): Boolean {
+
+            }
+        })
     }
 
 
