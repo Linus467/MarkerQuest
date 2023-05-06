@@ -5,12 +5,16 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Canvas
 import android.graphics.Color
+import android.location.GnssAntennaInfo.Listener
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
 import android.preference.PreferenceManager
 import android.view.MotionEvent
+import android.text.method.Touch
+import android.view.GestureDetector
+import android.view.GestureDetector.SimpleOnGestureListener
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -71,7 +75,7 @@ class MainActivity : AppCompatActivity(),LocationListener {
             val location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
             if (location != null) {
                 val currentLocation = GeoPoint(location.latitude, location.longitude)
-                addUserLocationMarker(currentLocation)
+                addMarker(currentLocation)
             } else {
                 mapController.setCenter(startpoint)
                 mapController.setZoom(15.0)
@@ -136,7 +140,7 @@ class MainActivity : AppCompatActivity(),LocationListener {
 
 
     }
-    private fun addUserLocationMarker(location: GeoPoint) {
+    private fun addMarker(location: GeoPoint) {
         // Remove the previous marker if it exists
         previousMarker?.let {
             map.overlays.remove(it)
@@ -164,7 +168,7 @@ class MainActivity : AppCompatActivity(),LocationListener {
 
         //Setting User
         val userIcon = ContextCompat.getDrawable(this, R.drawable.baseline_expand_less_24)
-        addUserLocationMarker(currentLocation)
+        addMarker(currentLocation)
 
     }
     override fun onResume() {
@@ -200,9 +204,11 @@ class MainActivity : AppCompatActivity(),LocationListener {
                 REQUEST_PERMISSIONS_REQUEST_CODE)
         }
     }
-    fun addMarker(location: GeoPoint){
+
+    fun onClickDraw1(view: View) {
+        map.getMapCenter()
         val marker : Marker = Marker(map)
-        var position = location
+        var position = map.getMapCenter() as GeoPoint?
         marker.position = position
         marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
         marker.title = map.getMapCenter().toString() + " "
@@ -223,9 +229,7 @@ class MainActivity : AppCompatActivity(),LocationListener {
             true
         }
         map.overlays.add(marker)
-    }
-    fun onClickDraw1(view: View) {
-        addMarker(map.getMapCenter() as GeoPoint)
+
     }
 
     fun onClickDraw3(view: View?) {
@@ -234,7 +238,11 @@ class MainActivity : AppCompatActivity(),LocationListener {
                 drawCompass(c, -map.mapOrientation, pProjection?.screenRect)
             }
         }
+
         map.overlays.add(mapNorthCompassOverlay)
+        /*map.overlays[map.overlays.indexOf(mapNorthCompassOverlay)].onTouchEvent(object : SimpleOnGestureListener {
+
+        })*/
     }
 
 
