@@ -75,7 +75,7 @@ class MainActivity : AppCompatActivity(),LocationListener {
             val location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
             if (location != null) {
                 val currentLocation = GeoPoint(location.latitude, location.longitude)
-                addMarker(currentLocation)
+                addUserMarker(currentLocation)
             } else {
                 mapController.setCenter(startpoint)
                 mapController.setZoom(15.0)
@@ -109,7 +109,6 @@ class MainActivity : AppCompatActivity(),LocationListener {
         //Creating markers on touch
         map.setOnTouchListener(object : View.OnTouchListener {
             private var touchStartTime: Long = 0
-
             override fun onTouch(view: View, event: MotionEvent): Boolean {
                 when (event.action) {
                     MotionEvent.ACTION_DOWN -> {
@@ -132,7 +131,6 @@ class MainActivity : AppCompatActivity(),LocationListener {
                             return true
                         }
                     }
-                    else ->false
                 }
                 return false
             }
@@ -140,7 +138,31 @@ class MainActivity : AppCompatActivity(),LocationListener {
 
 
     }
-    private fun addMarker(location: GeoPoint) {
+    private fun addMarker(location: GeoPoint){
+        val marker : Marker = Marker(map)
+        var position = location
+        marker.position = position
+        marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+        marker.title = map.getMapCenter().toString() + " "
+        marker.setOnMarkerClickListener { marker, mapView ->
+            marker.showInfoWindow()
+            mapView.controller.animateTo(marker.position)
+            val fromLocation: GeoPoint = userLocationRightNow!!
+            val toLocation: GeoPoint = position!!
+            val pathPoints: MutableList<GeoPoint> = mutableListOf(
+                fromLocation, toLocation
+            )
+            val pathLine = Polyline().apply {
+                setPoints(pathPoints)
+                color = Color.BLUE
+                width = 5f
+            }
+            map.overlays.add(pathLine)
+            true
+        }
+        map.overlays.add(marker)
+    }
+    private fun addUserMarker(location: GeoPoint) {
         // Remove the previous marker if it exists
         previousMarker?.let {
             map.overlays.remove(it)
@@ -168,7 +190,7 @@ class MainActivity : AppCompatActivity(),LocationListener {
 
         //Setting User
         val userIcon = ContextCompat.getDrawable(this, R.drawable.baseline_expand_less_24)
-        addMarker(currentLocation)
+        addUserMarker(currentLocation)
 
     }
     override fun onResume() {
@@ -206,30 +228,7 @@ class MainActivity : AppCompatActivity(),LocationListener {
     }
 
     fun onClickDraw1(view: View) {
-        map.getMapCenter()
-        val marker : Marker = Marker(map)
-        var position = map.getMapCenter() as GeoPoint?
-        marker.position = position
-        marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-        marker.title = map.getMapCenter().toString() + " "
-        marker.setOnMarkerClickListener { marker, mapView ->
-            marker.showInfoWindow()
-            mapView.controller.animateTo(marker.position)
-            val fromLocation: GeoPoint = userLocationRightNow!!
-            val toLocation: GeoPoint = position!!
-            val pathPoints: MutableList<GeoPoint> = mutableListOf(
-                fromLocation, toLocation
-            )
-            val pathLine = Polyline().apply {
-                setPoints(pathPoints)
-                color = Color.BLUE
-                width = 5f
-            }
-            map.overlays.add(pathLine)
-            true
-        }
-        map.overlays.add(marker)
-
+        addMarker(map.getMapCenter() as GeoPoint)
     }
 
     fun onClickDraw3(view: View?) {
