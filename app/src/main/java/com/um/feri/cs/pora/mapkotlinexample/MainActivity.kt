@@ -11,6 +11,7 @@ import android.preference.PreferenceManager
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import org.osmdroid.config.Configuration.*
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
@@ -75,6 +76,15 @@ class MainActivity : AppCompatActivity(),LocationListener {
         val mapController = map.controller
         mapController.setCenter(currentLocation)
         mapController.setZoom(15.0)
+
+        //Setting User
+        val userIcon = ContextCompat.getDrawable(this, R.drawable.baseline_expand_less_24)
+        val marker = Marker(map)
+        marker.position = currentLocation
+        marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+        marker.icon = userIcon
+        map.overlays.add(marker)
+
     }
     override fun onResume() {
         super.onResume()
