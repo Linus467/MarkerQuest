@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Canvas
+import android.graphics.Color
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
@@ -20,6 +21,7 @@ import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.Projection
 import org.osmdroid.views.overlay.Marker
+import org.osmdroid.views.overlay.Polyline
 import org.osmdroid.views.overlay.compass.CompassOverlay
 import org.osmdroid.views.overlay.compass.InternalCompassOrientationProvider
 import org.osmdroid.views.overlay.gestures.RotationGestureOverlay
@@ -170,7 +172,17 @@ class MainActivity : AppCompatActivity(),LocationListener {
         marker.setOnMarkerClickListener { marker, mapView ->
             marker.showInfoWindow()
             mapView.controller.animateTo(marker.position)
-             userLocationRightNow
+            val fromLocation: GeoPoint = userLocationRightNow!!
+            val toLocation: GeoPoint = position!!
+            val pathPoints: MutableList<GeoPoint> = mutableListOf(
+                fromLocation, toLocation
+            )
+            val pathLine = Polyline().apply {
+                setPoints(pathPoints)
+                color = Color.BLUE
+                width = 5f
+            }
+            map.overlays.add(pathLine)
             true
         }
         map.overlays.add(marker)
