@@ -84,7 +84,7 @@ class MainActivity : AppCompatActivity(),LocationListener {
             )
         }
 
-        val mRotationGestureOverlay = RotationGestureOverlay(this, map)
+        val mRotationGestureOverlay = RotationGestureOverlay(map)
         mRotationGestureOverlay.isEnabled = true
         map.setMultiTouchControls(true)
         map.overlays.add(mRotationGestureOverlay)
