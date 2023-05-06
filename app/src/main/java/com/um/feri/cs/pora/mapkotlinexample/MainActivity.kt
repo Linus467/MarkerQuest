@@ -56,8 +56,7 @@ class MainActivity : AppCompatActivity(),LocationListener {
             val location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
             if (location != null) {
                 val currentLocation = GeoPoint(location.latitude, location.longitude)
-                mapController.setCenter(currentLocation)
-                mapController.setZoom(15.0)
+                addMarker(currentLocation)
             } else {
                 mapController.setCenter(startpoint)
                 mapController.setZoom(15.0)
