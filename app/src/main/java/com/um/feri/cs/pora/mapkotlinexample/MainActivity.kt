@@ -38,6 +38,9 @@ import org.osmdroid.views.overlay.Polyline
 import org.osmdroid.views.overlay.compass.CompassOverlay
 import org.osmdroid.views.overlay.compass.InternalCompassOrientationProvider
 import org.osmdroid.views.overlay.gestures.RotationGestureOverlay
+import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
+import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
+import org.osmdroid.views.overlay.mylocation.SimpleLocationOverlay
 import java.io.File
 import java.util.*
 
@@ -68,7 +71,7 @@ class MainActivity : AppCompatActivity(),LocationListener {
         mapController.setCenter(startpoint)
 
         //Getting last location to be displayed on the Map
-        locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        locationManager = getSystemService(LOCATION_SERVICE) as LocationManager
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             //Get last known location
             val location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
@@ -98,6 +101,7 @@ class MainActivity : AppCompatActivity(),LocationListener {
                 this
             )
         }
+
 
         //Settings for the Map
         val mRotationGestureOverlay = RotationGestureOverlay(map)
