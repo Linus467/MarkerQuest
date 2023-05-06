@@ -196,6 +196,7 @@ class MainActivity : AppCompatActivity(),LocationListener {
             }
         }
         map.overlays.add(mapNorthCompassOverlay)
+        map.overlays.get(map.overlays.indexOf(mapNorthCompassOverlay)).onSingleTapConfirmed(, map)
     }
 
 
