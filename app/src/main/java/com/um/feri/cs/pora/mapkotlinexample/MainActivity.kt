@@ -295,6 +295,12 @@ class MainActivity : AppCompatActivity(),LocationListener {
     fun loadMarkersFromJsonFile(context: Context): List<Marker> {
         val fileName = "markers.json"
         val file = File(context.filesDir, fileName)
+
+        // check if file exists before reading its contents
+        if (!file.exists()) {
+            return emptyList()
+        }
+
         val jsonString = try {
             file.readText()
         } catch (e: Exception) {
@@ -303,20 +309,26 @@ class MainActivity : AppCompatActivity(),LocationListener {
         }
 
         val markers = mutableListOf<Marker>()
-        val jsonArray = JSONArray(jsonString)
-        for (i in 0 until jsonArray.length()) {
-            val jsonObject = jsonArray.getJSONObject(i)
-            val latitude = jsonObject.getDouble("latitude")
-            val longitude = jsonObject.getDouble("longitude")
-            val title = jsonObject.getString("title")
+        if(jsonString != ""){
+            val jsonArray = JSONArray(jsonString)
+            for (i in 0 until jsonArray.length()) {
+                val jsonObject = jsonArray.getJSONObject(i)
+                val latitude = jsonObject.getDouble("latitude")
+                val longitude = jsonObject.getDouble("longitude")
+                val title = jsonObject.getString("title")
 
-            val marker = Marker(map)
-            marker.position = GeoPoint(latitude, longitude)
-            marker.title = title
-            markers.add(marker)
+                val marker = Marker(map)
+                marker.position = GeoPoint(latitude, longitude)
+                marker.title = title
+                markers.add(marker)
+            }
+        }
+        else{
+            return emptyList()
         }
         return markers
     }
+
 
 
 }
