@@ -51,22 +51,10 @@ class MainActivity : AppCompatActivity(),LocationListener {
     var startpoint : GeoPoint = GeoPoint(50.98369865472108, 7.1198313230549255)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        //handle permissions first, before map is created. not depicted here
-
-        //load/initialize the osmdroid configuration, this can be done
-        // This won't work unless you have imported this: org.osmdroid.config.Configuration.*
         getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this))
-        //setting this before the layout is inflated is a good idea
-        //it 'should' ensure that the map has a writable location for the map cache, even without permissions
-        //if no tiles are displayed, you can try overriding the cache path using Configuration.getInstance().setCachePath
-        //see also StorageUtils
-        //note, the load method also sets the HTTP User Agent to your application's package name, if you abuse osm's
-        //tile servers will get you banned based on this string.
 
         //inflate and create the map
         setContentView(R.layout.activity_main)
-
-
 
         //Creating the Map
         map = findViewById<MapView>(R.id.map)
@@ -116,7 +104,7 @@ class MainActivity : AppCompatActivity(),LocationListener {
         map.setMultiTouchControls(true)
         map.overlays.add(mRotationGestureOverlay)
 
-        //Adding markers from file
+        //Adding markers from JSON file
         try{
             val markerList = loadMarkersFromJsonFile(this)
             markerList.forEach { marker ->
@@ -127,6 +115,7 @@ class MainActivity : AppCompatActivity(),LocationListener {
         }
 
     }
+    //Adding Saved Marker to the App on Start
     private fun addSavedMarker(marker : Marker){
         marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
         marker.setOnMarkerClickListener { marker, mapView ->
@@ -316,7 +305,6 @@ class MainActivity : AppCompatActivity(),LocationListener {
         val fileName = "markers.json"
         val file = File(context.filesDir, fileName)
 
-        // check if file exists before reading its contents
         if (!file.exists()) {
             return emptyList()
         }
