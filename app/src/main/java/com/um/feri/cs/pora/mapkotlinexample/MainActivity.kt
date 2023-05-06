@@ -17,7 +17,9 @@ import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
+import org.osmdroid.views.overlay.gestures.RotationGestureOverlay
 import java.util.*
+
 
 class MainActivity : AppCompatActivity(),LocationListener {
     private val REQUEST_PERMISSIONS_REQUEST_CODE = 1
@@ -81,6 +83,11 @@ class MainActivity : AppCompatActivity(),LocationListener {
                 this
             )
         }
+
+        val mRotationGestureOverlay = RotationGestureOverlay(this, map)
+        mRotationGestureOverlay.isEnabled = true
+        map.setMultiTouchControls(true)
+        map.overlays.add(mRotationGestureOverlay)
     }
     private fun addMarker(location: GeoPoint) {
         // Remove the previous marker if it exists
