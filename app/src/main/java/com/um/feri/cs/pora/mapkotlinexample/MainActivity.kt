@@ -47,11 +47,21 @@ class MainActivity : AppCompatActivity(),LocationListener {
         map.setTileSource(TileSourceFactory.MAPNIK)
 
         val mapController = map.controller
-        mapController.setCenter(startpoint)
-        mapController.setZoom(15.0)
+
 
         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
-
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            //Get last known location
+            val location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+            if (location != null) {
+                val currentLocation = GeoPoint(location.latitude, location.longitude)
+                mapController.setCenter(currentLocation)
+                mapController.setZoom(15.0)
+            } else {
+                mapController.setCenter(startpoint)
+                mapController.setZoom(15.0)
+            }
+        }
         if (ActivityCompat.checkSelfPermission(
                 this,
                 Manifest.permission.ACCESS_FINE_LOCATION
@@ -83,13 +93,13 @@ class MainActivity : AppCompatActivity(),LocationListener {
         marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
         marker.icon = ContextCompat.getDrawable(this, R.drawable.baseline_expand_less_24)
         map.overlays.add(marker)
-
         // Store the new marker as the previous marker
         previousMarker = marker
 
         // Refresh the map to update the marker
         map.invalidate()
     }
+
     override fun onLocationChanged(location: Location) {
         val currentLocation = GeoPoint(location.latitude, location.longitude)
 
