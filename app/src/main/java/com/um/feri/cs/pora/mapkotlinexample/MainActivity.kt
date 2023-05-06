@@ -1,45 +1,21 @@
 package com.um.feri.cs.pora.mapkotlinexample
 
-import android.Manifest
-import android.annotation.SuppressLint
-import android.content.*
-import android.graphics.Color
-import android.location.Location
-import android.location.LocationManager
 import android.os.Bundle
-import android.os.Looper
 import android.preference.PreferenceManager
 import android.view.View
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
-import com.google.android.gms.common.api.ResolvableApiException
-import com.google.android.gms.location.*
-import com.google.android.gms.tasks.Task
-import com.um.feri.cs.pora.mapkotlinexample.databinding.ActivityMainBinding
-import com.um.feri.cs.pora.mapkotlinexample.location.LocationProviderChangedReceiver
-import com.um.feri.cs.pora.mapkotlinexample.location.MyEventLocationSettingsChange
-import org.greenrobot.eventbus.EventBus
-import org.greenrobot.eventbus.Subscribe
-import org.greenrobot.eventbus.ThreadMode
-import org.osmdroid.api.IMapController
 import org.osmdroid.config.Configuration.*
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
-import org.osmdroid.views.overlay.Polygon
-import org.osmdroid.views.overlay.Polyline
-import org.osmdroid.views.overlay.compass.CompassOverlay
-import org.osmdroid.views.overlay.compass.InternalCompassOrientationProvider
-import timber.log.Timber
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
     private val REQUEST_PERMISSIONS_REQUEST_CODE = 1
     private lateinit var map : MapView
+    var startpoint : GeoPoint = GeoPoint(50.98369865472108, 7.1198313230549255)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -60,8 +36,10 @@ class MainActivity : AppCompatActivity() {
 
         map = findViewById<MapView>(R.id.map)
         map.setTileSource(TileSourceFactory.MAPNIK)
-    }
 
+
+
+    }
     override fun onResume() {
         super.onResume()
         //this will refresh the osmdroid configuration on resuming.
@@ -94,6 +72,15 @@ class MainActivity : AppCompatActivity() {
                 permissionsToRequest.toTypedArray(),
                 REQUEST_PERMISSIONS_REQUEST_CODE)
         }
+    }
+
+    fun onClickDraw1(view: View) {
+        map.getMapCenter()
+        val marker : Marker = Marker(map)
+        marker.position = map.getMapCenter() as GeoPoint?
+        marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+        map.overlays.add(marker)
+
     }
 
 
