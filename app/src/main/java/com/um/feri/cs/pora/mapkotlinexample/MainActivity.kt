@@ -111,7 +111,7 @@ class MainActivity : AppCompatActivity(),LocationListener {
 
         //Adding markers from JSON file
         try{
-            val markerList = loadMarkersFromJsonFile(this)
+            val markerList = loadMarkersFromSharedPreferences(this)
             markerList.forEach { marker ->
                 addSavedMarker(marker)
             }
@@ -242,7 +242,7 @@ class MainActivity : AppCompatActivity(),LocationListener {
                 }
             }
         }
-        saveMarkersToJsonFile(this,markerList)
+        saveMarkersToSharedPreferences(this,markerList)
         super.onDestroy()
     }
 
@@ -282,7 +282,7 @@ class MainActivity : AppCompatActivity(),LocationListener {
 
 
 
-    // Save markers to a JSON file
+    /*// Save markers to a JSON file
     fun saveMarkersToJsonFile(context: Context, markers: List<Marker>) {
         val jsonArray = JSONArray()
         markers.forEach { marker ->
@@ -334,7 +334,52 @@ class MainActivity : AppCompatActivity(),LocationListener {
             return emptyList()
         }
         return markers
+    }*/
+    // Save markers to SharedPreferences
+    // Save markers to SharedPreferences
+    fun saveMarkersToSharedPreferences(context: Context, markers: List<Marker>) {
+        val sharedPreferences = context.getSharedPreferences("markers", Context.MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+
+        // Convert the list of markers to a set of serialized strings
+        val markerSet = mutableSetOf<String>()
+        markers.forEach { marker ->
+            val jsonObject = JSONObject()
+            jsonObject.put("latitude", marker.position.latitude)
+            jsonObject.put("longitude", marker.position.longitude)
+            jsonObject.put("title", marker.title)
+            markerSet.add(jsonObject.toString())
+        }
+
+        // Save the set of serialized strings to SharedPreferences
+        editor.putStringSet("markerSet", markerSet)
+        editor.apply()
     }
+
+    // Load markers from SharedPreferences
+    fun loadMarkersFromSharedPreferences(context: Context): List<Marker> {
+        val sharedPreferences = context.getSharedPreferences("markers", Context.MODE_PRIVATE)
+
+        // Get the set of serialized strings from SharedPreferences
+        val markerSet = sharedPreferences.getStringSet("markerSet", null)
+
+        // Convert the set of serialized strings to a list of markers
+        val markers = mutableListOf<Marker>()
+        markerSet?.forEach { markerString ->
+            val jsonObject = JSONObject(markerString)
+            val latitude = jsonObject.getDouble("latitude")
+            val longitude = jsonObject.getDouble("longitude")
+            val title = jsonObject.getString("title")
+
+            val marker = Marker(map)
+            marker.position = GeoPoint(latitude, longitude)
+            marker.title = title
+            markers.add(marker)
+        }
+
+        return markers
+    }
+
 
 
 
