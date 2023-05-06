@@ -203,6 +203,11 @@ class MainActivity : AppCompatActivity(),LocationListener {
         //Setting User
         val userIcon = ContextCompat.getDrawable(this, R.drawable.baseline_expand_less_24)
         addUserMarker(currentLocation)
+        if(pathLine!= null){
+            pathLine!!.actualPoints[0].latitude = currentLocation.latitude
+            pathLine!!.actualPoints[0].longitude = currentLocation.longitude
+            pathLine!!.actualPoints[0].altitude = currentLocation.altitude
+        }
 
     }
     override fun onResume() {
@@ -255,18 +260,6 @@ class MainActivity : AppCompatActivity(),LocationListener {
 
     fun onClickDraw1(view: View) {
         addMarker(map.getMapCenter() as GeoPoint)
-    }
-    fun onClickDraw2(view: View?){
-        var markerList : MutableList<Marker> = mutableListOf()
-        map.overlays.forEach{ Layer ->
-            if(Layer is Marker){
-                val l1 : Marker = Layer as Marker
-                if(l1.title != "Meine Position"){
-                    markerList!!.add(Layer as Marker)
-                }
-            }
-        }
-        saveMarkersToJsonFile(this,markerList)
     }
     fun onClickDraw3(view: View?) {
         val mapNorthCompassOverlay = object: CompassOverlay(this, map) {
