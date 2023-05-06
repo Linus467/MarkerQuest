@@ -120,14 +120,34 @@ class MainActivity : AppCompatActivity(),LocationListener {
         try{
             val markerList = loadMarkersFromJsonFile(this)
             markerList.forEach { marker ->
-                map.overlays.add(marker)
+                addSavedMarker(marker)
             }
         }finally {
 
         }
 
     }
-
+    private fun addSavedMarker(marker : Marker){
+        marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+        marker.setOnMarkerClickListener { marker, mapView ->
+            marker.showInfoWindow()
+            mapView.controller.animateTo(marker.position)
+            val fromLocation: GeoPoint = userLocationRightNow!!
+            val toLocation: GeoPoint = marker.position
+            val pathPoints: MutableList<GeoPoint> = mutableListOf(
+                fromLocation, toLocation
+            )
+            pathLine?.let { map.overlays.remove(it) } // remove existing path
+            pathLine = Polyline().apply {
+                setPoints(pathPoints)
+                color = Color.BLUE
+                width = 5f
+            }
+            map.overlays.add(pathLine)
+            true
+        }
+        map.overlays.add(marker)
+    }
     private fun addMarker(location: GeoPoint) {
         val marker = Marker(map)
         var position = location
