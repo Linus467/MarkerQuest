@@ -218,7 +218,10 @@ class MainActivity : AppCompatActivity(),LocationListener {
         var markerList : MutableList<Marker> = mutableListOf()
         map.overlays.forEach{ Layer ->
             if(Layer is Marker){
-                markerList!!.add(Layer as Marker)
+                val l1 : Marker = Layer as Marker
+                if(l1.title != "Meine Position"){
+                    markerList!!.add(Layer as Marker)
+                }
             }
         }
         saveMarkersToJsonFile(this,markerList)
@@ -244,7 +247,18 @@ class MainActivity : AppCompatActivity(),LocationListener {
     fun onClickDraw1(view: View) {
         addMarker(map.getMapCenter() as GeoPoint)
     }
-
+    fun onClickDraw2(view: View?){
+        var markerList : MutableList<Marker> = mutableListOf()
+        map.overlays.forEach{ Layer ->
+            if(Layer is Marker){
+                val l1 : Marker = Layer as Marker
+                if(l1.title != "Meine Position"){
+                    markerList!!.add(Layer as Marker)
+                }
+            }
+        }
+        saveMarkersToJsonFile(this,markerList)
+    }
     fun onClickDraw3(view: View?) {
         val mapNorthCompassOverlay = object: CompassOverlay(this, map) {
             override fun draw(c: Canvas?, pProjection: Projection?) {
