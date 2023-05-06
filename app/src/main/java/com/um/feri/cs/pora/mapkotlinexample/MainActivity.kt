@@ -45,6 +45,7 @@ class MainActivity : AppCompatActivity(),LocationListener {
 
         map = findViewById<MapView>(R.id.map)
         map.setTileSource(TileSourceFactory.MAPNIK)
+        map.setMultiTouchControls(true)
 
         val mapController = map.controller
 
