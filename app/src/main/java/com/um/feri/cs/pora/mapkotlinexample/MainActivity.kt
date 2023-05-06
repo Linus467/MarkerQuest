@@ -180,11 +180,22 @@ class MainActivity : AppCompatActivity(),LocationListener {
                 true
             }
             map.overlays.add(marker)
+            var markerList : MutableList<Marker> = mutableListOf()
+            map.overlays.forEach{ Layer ->
+                if(Layer is Marker){
+                    val l1 : Marker = Layer as Marker
+                    if(l1.title != "Meine Position"){
+                        markerList!!.add(Layer as Marker)
+                    }
+                }
+            }
+            saveMarkersToSharedPreferences(this,markerList)
         }
         alertDialogBuilder.setNegativeButton("Cancel") { dialog, _ ->
             dialog.cancel()
         }
         alertDialogBuilder.show()
+
     }
 
 
@@ -242,16 +253,7 @@ class MainActivity : AppCompatActivity(),LocationListener {
     }
 
     override fun onDestroy() {
-        var markerList : MutableList<Marker> = mutableListOf()
-        map.overlays.forEach{ Layer ->
-            if(Layer is Marker){
-                val l1 : Marker = Layer as Marker
-                if(l1.title != "Meine Position"){
-                    markerList!!.add(Layer as Marker)
-                }
-            }
-        }
-        saveMarkersToSharedPreferences(this,markerList)
+
         super.onDestroy()
     }
 
