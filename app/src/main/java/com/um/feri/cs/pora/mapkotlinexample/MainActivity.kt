@@ -48,7 +48,7 @@ class MainActivity : AppCompatActivity(),LocationListener {
         map.setMultiTouchControls(true)
 
         val mapController = map.controller
-
+        mapController.setZoom(15.0)
 
         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
