@@ -3,6 +3,7 @@ package com.um.feri.cs.pora.mapkotlinexample
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
+import android.graphics.Canvas
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
@@ -16,7 +17,10 @@ import org.osmdroid.config.Configuration.*
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
+import org.osmdroid.views.Projection
 import org.osmdroid.views.overlay.Marker
+import org.osmdroid.views.overlay.compass.CompassOverlay
+import org.osmdroid.views.overlay.compass.InternalCompassOrientationProvider
 import org.osmdroid.views.overlay.gestures.RotationGestureOverlay
 import java.util.*
 
@@ -160,6 +164,15 @@ class MainActivity : AppCompatActivity(),LocationListener {
         marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
         map.overlays.add(marker)
 
+    }
+
+    fun onClickDraw3(view: View?) {
+        val mapNorthCompassOverlay = object: CompassOverlay(this, map) {
+            override fun draw(c: Canvas?, pProjection: Projection?) {
+                drawCompass(c, -map.mapOrientation, pProjection?.screenRect)
+            }
+        }
+        map.overlays.add(mapNorthCompassOverlay)
     }
 
 
