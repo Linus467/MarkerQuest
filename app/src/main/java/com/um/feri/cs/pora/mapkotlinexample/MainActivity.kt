@@ -1,6 +1,7 @@
 package com.um.feri.cs.pora.mapkotlinexample
 
 import android.Manifest
+import android.app.AlertDialog
 import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Canvas
@@ -16,20 +17,27 @@ import android.text.method.Touch
 import android.view.GestureDetector
 import android.view.GestureDetector.SimpleOnGestureListener
 import android.view.View
+import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.helper.widget.Layer
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.view.forEach
+import org.json.JSONArray
+import org.json.JSONObject
 import org.osmdroid.config.Configuration.*
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.Projection
 import org.osmdroid.views.overlay.Marker
+import org.osmdroid.views.overlay.Overlay
 import org.osmdroid.views.overlay.Polyline
 import org.osmdroid.views.overlay.compass.CompassOverlay
 import org.osmdroid.views.overlay.compass.InternalCompassOrientationProvider
 import org.osmdroid.views.overlay.gestures.RotationGestureOverlay
+import java.io.File
 import java.util.*
 
 
@@ -38,11 +46,11 @@ class MainActivity : AppCompatActivity(),LocationListener {
     private lateinit var map : MapView
     private var previousMarker: Marker? = null;
     private var userLocationRightNow: GeoPoint? = null
+    private var pathLine: Polyline? = null
     private lateinit var locationManager: LocationManager
     var startpoint : GeoPoint = GeoPoint(50.98369865472108, 7.1198313230549255)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         //handle permissions first, before map is created. not depicted here
 
         //load/initialize the osmdroid configuration, this can be done
@@ -57,6 +65,8 @@ class MainActivity : AppCompatActivity(),LocationListener {
 
         //inflate and create the map
         setContentView(R.layout.activity_main)
+
+
 
         //Creating the Map
         map = findViewById<MapView>(R.id.map)
@@ -106,62 +116,55 @@ class MainActivity : AppCompatActivity(),LocationListener {
         map.setMultiTouchControls(true)
         map.overlays.add(mRotationGestureOverlay)
 
-        //Creating markers on touch
-        map.setOnTouchListener(object : View.OnTouchListener {
-            private var touchStartTime: Long = 0
-            override fun onTouch(view: View, event: MotionEvent): Boolean {
-                when (event.action) {
-                    MotionEvent.ACTION_DOWN -> {
-                        touchStartTime = event.eventTime
-                        return true // consume the event
-                    }
-                    MotionEvent.ACTION_UP -> {
-                        val touchEndTime = event.eventTime
-                        val touchDuration = touchEndTime - touchStartTime
-
-                        if (touchDuration <= 100) { // handle touch only if it was less than 500ms
-                            // create a new GeoPoint at the touched location
-                            val touchedPoint = GeoPoint(map.projection.fromPixels(event.x.toInt(), event.y.toInt()))
-
-                            // create a new marker at the touched location
-                            addMarker(touchedPoint)
-                            map.invalidate()
-
-                            // return true to indicate that the event has been consumed
-                            return true
-                        }
-                    }
-                }
-                return false
+        //Adding markers from file
+        try{
+            val markerList = loadMarkersFromJsonFile(this)
+            markerList.forEach { marker ->
+                map.overlays.add(marker)
             }
-        })
+        }finally {
 
+        }
 
     }
-    private fun addMarker(location: GeoPoint){
-        val marker : Marker = Marker(map)
+
+    private fun addMarker(location: GeoPoint) {
+        val marker = Marker(map)
         var position = location
         marker.position = position
         marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-        marker.title = map.getMapCenter().toString() + " "
-        marker.setOnMarkerClickListener { marker, mapView ->
-            marker.showInfoWindow()
-            mapView.controller.animateTo(marker.position)
-            val fromLocation: GeoPoint = userLocationRightNow!!
-            val toLocation: GeoPoint = position!!
-            val pathPoints: MutableList<GeoPoint> = mutableListOf(
-                fromLocation, toLocation
-            )
-            val pathLine = Polyline().apply {
-                setPoints(pathPoints)
-                color = Color.BLUE
-                width = 5f
+        val alertDialogBuilder = AlertDialog.Builder(this@MainActivity)
+        val input = EditText(this@MainActivity)
+        alertDialogBuilder.setView(input)
+        alertDialogBuilder.setTitle("Enter Marker Title")
+        alertDialogBuilder.setPositiveButton("OK") { dialog, _ ->
+            marker.title = input.text.toString()
+            marker.setOnMarkerClickListener { marker, mapView ->
+                marker.showInfoWindow()
+                mapView.controller.animateTo(marker.position)
+                val fromLocation: GeoPoint = userLocationRightNow!!
+                val toLocation: GeoPoint = position!!
+                val pathPoints: MutableList<GeoPoint> = mutableListOf(
+                    fromLocation, toLocation
+                )
+                pathLine?.let { map.overlays.remove(it) } // remove existing path
+                pathLine = Polyline().apply {
+                    setPoints(pathPoints)
+                    color = Color.BLUE
+                    width = 5f
+                }
+                map.overlays.add(pathLine)
+                true
             }
-            map.overlays.add(pathLine)
-            true
+            map.overlays.add(marker)
         }
-        map.overlays.add(marker)
+        alertDialogBuilder.setNegativeButton("Cancel") { dialog, _ ->
+            dialog.cancel()
+        }
+        alertDialogBuilder.show()
     }
+
+
     private fun addUserMarker(location: GeoPoint) {
         // Remove the previous marker if it exists
         previousMarker?.let {
@@ -211,6 +214,17 @@ class MainActivity : AppCompatActivity(),LocationListener {
         map.onPause()  //needed for compass, my location overlays, v6.0.0 and up
     }
 
+    override fun onDestroy() {
+        var markerList : MutableList<Marker> = mutableListOf()
+        map.overlays.forEach{ Layer ->
+            if(Layer is Marker){
+                markerList!!.add(Layer as Marker)
+            }
+        }
+        saveMarkersToJsonFile(this,markerList)
+        super.onDestroy()
+    }
+
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         val permissionsToRequest = ArrayList<String>()
@@ -245,21 +259,51 @@ class MainActivity : AppCompatActivity(),LocationListener {
     }
 
 
-    /*private fun requestPermissionsIfNecessary(String[] permissions) {
-        val permissionsToRequest = ArrayList<String>();
-        permissions.forEach { permission ->
-        if (ContextCompat.checkSelfPermission(this, permission)
-                != PackageManager.PERMISSION_GRANTED) {
-            // Permission is not granted
-            permissionsToRequest.add(permission);
+
+    // Save markers to a JSON file
+    fun saveMarkersToJsonFile(context: Context, markers: List<Marker>) {
+        val jsonArray = JSONArray()
+        markers.forEach { marker ->
+            val jsonObject = JSONObject()
+            jsonObject.put("latitude", marker.position.latitude)
+            jsonObject.put("longitude", marker.position.longitude)
+            jsonObject.put("title", marker.title)
+            jsonArray.put(jsonObject)
         }
+        val jsonString = jsonArray.toString()
+
+        val fileName = "markers.json"
+        val file = File(context.filesDir, fileName)
+        file.writeText(jsonString)
     }
-        if (permissionsToRequest.size() > 0) {
-            ActivityCompat.requestPermissions(
-                    this,
-                    permissionsToRequest.toArray(new String[0]),
-                    REQUEST_PERMISSIONS_REQUEST_CODE);
+
+    // Load markers from a JSON file
+    fun loadMarkersFromJsonFile(context: Context): List<Marker> {
+        val fileName = "markers.json"
+        val file = File(context.filesDir, fileName)
+        val jsonString = try {
+            file.readText()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return emptyList()
         }
-    }*/
+
+        val markers = mutableListOf<Marker>()
+        val jsonArray = JSONArray(jsonString)
+        for (i in 0 until jsonArray.length()) {
+            val jsonObject = jsonArray.getJSONObject(i)
+            val latitude = jsonObject.getDouble("latitude")
+            val longitude = jsonObject.getDouble("longitude")
+            val title = jsonObject.getString("title")
+
+            val marker = Marker(map)
+            marker.position = GeoPoint(latitude, longitude)
+            marker.title = title
+            markers.add(marker)
+        }
+        return markers
+    }
+
+
 }
 
