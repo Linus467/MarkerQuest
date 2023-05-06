@@ -1,5 +1,11 @@
 package com.um.feri.cs.pora.mapkotlinexample
 
+import android.Manifest
+import android.content.Context
+import android.content.pm.PackageManager
+import android.location.Location
+import android.location.LocationListener
+import android.location.LocationManager
 import android.os.Bundle
 import android.preference.PreferenceManager
 import android.view.View
@@ -12,9 +18,10 @@ import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
 import java.util.*
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(),LocationListener {
     private val REQUEST_PERMISSIONS_REQUEST_CODE = 1
     private lateinit var map : MapView
+    private lateinit var locationManager: LocationManager
     var startpoint : GeoPoint = GeoPoint(50.98369865472108, 7.1198313230549255)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,7 +48,33 @@ class MainActivity : AppCompatActivity() {
         mapController.setCenter(startpoint)
         mapController.setZoom(15.0)
 
+        locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
 
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                1
+            )
+        } else {
+            locationManager.requestLocationUpdates(
+                LocationManager.GPS_PROVIDER,
+                1000L,
+                10f,
+                this
+            )
+        }
+    }
+    override fun onLocationChanged(location: Location) {
+        val currentLocation = GeoPoint(location.latitude, location.longitude)
+
+        val mapController = map.controller
+        mapController.setCenter(currentLocation)
+        mapController.setZoom(15.0)
     }
     override fun onResume() {
         super.onResume()
