@@ -37,6 +37,9 @@ class MainActivity : AppCompatActivity() {
         map = findViewById<MapView>(R.id.map)
         map.setTileSource(TileSourceFactory.MAPNIK)
 
+        val mapController = map.controller
+        mapController.setCenter(startpoint)
+        mapController.setZoom(15.0)
 
 
     }
