@@ -119,6 +119,15 @@ class MainActivity : AppCompatActivity(),LocationListener {
 
         }
 
+        // Get the preferences instance for this activity
+        val preferences = getPreferences(Context.MODE_PRIVATE)
+
+        // Write a string preference
+        preferences.edit().putString("example_key", "example_value").apply()
+
+        // Read the string preference
+        val value = preferences.getString("example_key", null)
+
     }
     //Adding Saved Marker to the App on Start
     private fun addSavedMarker(marker : Marker){
@@ -264,6 +273,16 @@ class MainActivity : AppCompatActivity(),LocationListener {
 
     fun onClickDraw1(view: View) {
         addMarker(map.getMapCenter() as GeoPoint)
+        var markerList : MutableList<Marker> = mutableListOf()
+        map.overlays.forEach{ Layer ->
+            if(Layer is Marker){
+                val l1 : Marker = Layer as Marker
+                if(l1.title != "Meine Position"){
+                    markerList!!.add(Layer as Marker)
+                }
+            }
+        }
+        saveMarkersToSharedPreferences(this,markerList)
     }
     fun onClickDraw3(view: View?) {
         val mapNorthCompassOverlay = object: CompassOverlay(this, map) {
