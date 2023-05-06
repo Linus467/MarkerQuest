@@ -29,6 +29,7 @@ import org.json.JSONObject
 import org.osmdroid.config.Configuration.*
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
+import org.osmdroid.views.MapController
 import org.osmdroid.views.MapView
 import org.osmdroid.views.Projection
 import org.osmdroid.views.overlay.Marker
@@ -198,7 +199,6 @@ class MainActivity : AppCompatActivity(),LocationListener {
         val currentLocation = GeoPoint(location.latitude, location.longitude)
 
         val mapController = map.controller
-        mapController.setCenter(currentLocation)
 
         //Setting User
         val userIcon = ContextCompat.getDrawable(this, R.drawable.baseline_expand_less_24)
@@ -276,9 +276,11 @@ class MainActivity : AppCompatActivity(),LocationListener {
         }
 
         map.overlays.add(mapNorthCompassOverlay)
-        /*map.overlays[map.overlays.indexOf(mapNorthCompassOverlay)].onTouchEvent(object : SimpleOnGestureListener {
+    }
 
-        })*/
+    fun onClickDraw4(view: View?) {
+        var controller = map.controller
+        controller.setCenter(userLocationRightNow)
     }
 
 

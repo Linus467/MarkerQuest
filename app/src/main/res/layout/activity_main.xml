@@ -68,7 +68,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:onClick="onClickDraw4"
-                android:text="Path"
+                android:text="Pos"
                 android:textSize="12sp" />
 
         </LinearLayout>
