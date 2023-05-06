@@ -10,6 +10,7 @@ import android.location.LocationManager
 import android.os.Bundle
 import android.preference.PreferenceManager
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -29,6 +30,7 @@ class MainActivity : AppCompatActivity(),LocationListener {
     private val REQUEST_PERMISSIONS_REQUEST_CODE = 1
     private lateinit var map : MapView
     private var previousMarker: Marker? = null;
+    private var userLocationRightNow: GeoPoint? = null
     private lateinit var locationManager: LocationManager
     var startpoint : GeoPoint = GeoPoint(50.98369865472108, 7.1198313230549255)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -98,12 +100,13 @@ class MainActivity : AppCompatActivity(),LocationListener {
         previousMarker?.let {
             map.overlays.remove(it)
         }
-
+        userLocationRightNow = location
         // Add a new marker at the given location
         val marker = Marker(map)
         marker.position = location
         marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
         marker.icon = ContextCompat.getDrawable(this, R.drawable.baseline_expand_less_24)
+        marker.title = "Meine Position"
         map.overlays.add(marker)
         // Store the new marker as the previous marker
         previousMarker = marker
@@ -160,8 +163,16 @@ class MainActivity : AppCompatActivity(),LocationListener {
     fun onClickDraw1(view: View) {
         map.getMapCenter()
         val marker : Marker = Marker(map)
-        marker.position = map.getMapCenter() as GeoPoint?
+        var position = map.getMapCenter() as GeoPoint?
+        marker.position = position
         marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+        marker.title = map.getMapCenter().toString() + " "
+        marker.setOnMarkerClickListener { marker, mapView ->
+            marker.showInfoWindow()
+            mapView.controller.animateTo(marker.position)
+             userLocationRightNow
+            true
+        }
         map.overlays.add(marker)
 
     }
@@ -193,3 +204,4 @@ class MainActivity : AppCompatActivity(),LocationListener {
         }
     }*/
 }
+
