@@ -115,7 +115,6 @@ class MainActivity : AppCompatActivity(),LocationListener {
     }
     //Adding Saved Marker to the App on Start
     private fun addSavedMarker(marker : Marker){
-        marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
         marker.setOnMarkerClickListener { marker, mapView ->
             marker.showInfoWindow()
             mapView.controller.animateTo(marker.position)
@@ -138,8 +137,8 @@ class MainActivity : AppCompatActivity(),LocationListener {
     private fun addMarker(location: GeoPoint) {
         val marker = Marker(map)
         var position = location
+
         marker.position = position
-        marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
         val alertDialogBuilder = AlertDialog.Builder(this@MainActivity)
         val input = EditText(this@MainActivity)
         alertDialogBuilder.setView(input)
@@ -179,7 +178,6 @@ class MainActivity : AppCompatActivity(),LocationListener {
             dialog.cancel()
         }
         alertDialogBuilder.show()
-
     }
 
 
@@ -206,10 +204,6 @@ class MainActivity : AppCompatActivity(),LocationListener {
     override fun onLocationChanged(location: Location) {
         val currentLocation = GeoPoint(location.latitude, location.longitude)
 
-        val mapController = map.controller
-
-        //Setting User
-        val userIcon = ContextCompat.getDrawable(this, R.drawable.baseline_expand_less_24)
         addUserMarker(currentLocation)
         if(pathLine!= null){
             pathLine!!.actualPoints[0].latitude = currentLocation.latitude
